@@ -4,6 +4,19 @@
 
 ## 一行运行
 
+### 通用命令：PowerShell、CMD、Bash
+
+下面同一行可直接用于 PowerShell、CMD 和 Bash，从任意目录启动。需要 `python` 命令对应 Python 3.9+，不需要 curl 或克隆仓库：
+
+```powershell
+python -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/Loading886/NodeQuality/ip-quality-only/ip_quality.py', timeout=30).read().decode('utf-8'))"
+```
+
+可在行末追加 `-i 1.1.1.1`、`--local`、`-o ip_quality.json` 等参数。如果系统只有 `python3` 命令，将开头的 `python` 换成 `python3`；Windows 只有 `py` 时换成 `py -3`。这些只是解释器名称差异，命令内容和交互行为相同。
+程序在内存中加载，标准输入留给 IP 提示；不需要在当前目录保存脚本。
+
+### 可选：Bash 专用命令
+
 在 Linux/macOS 的 Bash 终端中，从任意目录运行：
 
 ```bash
@@ -20,9 +33,9 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Loading886/NodeQuality/ip-qu
 - 直接回车：识别本机公网 IPv4/IPv6，查询可用的地址；只有 IPv4 的主机也能正常运行。
 - 输入有误：重新提示，不会静默改查本机。
 
-运行需要 **Bash、curl 和 Python 3.9+**，不需要 root、pip 包或克隆仓库。缺少 Python 时脚本会提示，不自动安装系统软件。
+上面的 Bash 命令需要 **Bash、curl 和 Python 3.9+**，不需要 root、pip 包或克隆仓库。缺少 Python 时脚本会提示，不自动安装系统软件。
 `NodeQuality.sh` 内嵌完整查询程序，不依赖当前目录和其他项目文件，不运行远程下载的子脚本。
-Windows 可以通过 Git Bash 使用上面命令，或下载后运行 `python ip_quality.py`。
+`<(...)` 是 Bash 的进程替换语法，不能直接粘贴到 PowerShell；跨终端使用时推荐上面的通用命令。
 
 请使用上面的分支地址。原来的 `run.NodeQuality.com` 仍然是原版，与本分支无关。
 
