@@ -4,7 +4,27 @@
 
 ## 一行运行
 
-### 通用命令：PowerShell、CMD、Bash
+### 已有 PowerShell 7：免 Python、免安装额外工具
+
+直接在 PowerShell 7 中粘贴（支持 Windows、Linux、macOS 的 PowerShell 7）：
+
+```powershell
+& ([scriptblock]::Create((Invoke-RestMethod 'https://raw.githubusercontent.com/Loading886/NodeQuality/ip-quality-only/NodeQuality.ps1')))
+```
+
+此版本使用 PowerShell 自带的 .NET 网络和 JSON 功能，不调用 Python、curl、Bash，不安装任何软件。仍然是输入 IP 查询指定地址、直接回车检测本机公网 IP。
+
+指定 IP、输出 JSON 或保存本地文件时，可在这行末尾追加 `-i 1.1.1.1`、`-Json`、`-o ip_quality.json`；其他参数为 `-Local`、`-NoDnsbl`、`-Timeout 10`。交互提示和日志写入标准错误，JSON 写入标准输出。
+
+如果希望从 PowerShell、CMD、Bash 使用**完全相同的一行**，且这些机器均已安装 PowerShell 7、可以运行 `pwsh`：
+
+```text
+pwsh -NoProfile -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://raw.githubusercontent.com/Loading886/NodeQuality/ip-quality-only/NodeQuality.ps1')))"
+```
+
+不存在适用于所有裸环境且完全不需要执行环境的通用命令。这里的“免依赖”指已有 PowerShell 7 时，不需要额外安装软件；没有 PowerShell 7 的 Linux/macOS 可以使用下面的 Python/Bash 入口。Windows PowerShell 5.1 不支持此原生版本。
+
+### 已有 Python：PowerShell、CMD、Bash 通用
 
 下面同一行可直接用于 PowerShell、CMD 和 Bash，从任意目录启动。需要 `python` 命令对应 Python 3.9+，不需要 curl 或克隆仓库：
 
@@ -35,7 +55,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Loading886/NodeQuality/ip-qu
 
 上面的 Bash 命令需要 **Bash、curl 和 Python 3.9+**，不需要 root、pip 包或克隆仓库。缺少 Python 时脚本会提示，不自动安装系统软件。
 `NodeQuality.sh` 内嵌完整查询程序，不依赖当前目录和其他项目文件，不运行远程下载的子脚本。
-`<(...)` 是 Bash 的进程替换语法，不能直接粘贴到 PowerShell；跨终端使用时推荐上面的通用命令。
+`<(...)` 是 Bash 的进程替换语法，不能直接粘贴到 PowerShell；请按已有的执行环境选择上面的入口。
 
 请使用上面的分支地址。原来的 `run.NodeQuality.com` 仍然是原版，与本分支无关。
 
@@ -86,7 +106,7 @@ bash NodeQuality.sh -i 1.1.1.1 -o ip_quality.txt
 
 JSON 顶层包含 `mode`、`upload_enabled: false`、`detection_errors` 和 `reports`；本机双栈会包含两份报告。每份报告含目标 IP、来源状态、信息、因子、评分、黑名单和跳过项目。第三方字符串在终端展示前移除控制字符。
 
-退出码：`0` 至少一份报告有可用数据（可能只有部分来源）；`1` 所有来源失败、没有公网地址、非公网地址或文件保存失败；`2` 输入/参数错误；`130` 用户取消。
+Python/Bash 版退出码：`0` 至少一份报告有可用数据（可能只有部分来源）；`1` 所有来源失败、没有公网地址、非公网地址或文件保存失败；`2` 输入/参数错误；`130` 用户取消。PowerShell 原生版设置 `$LASTEXITCODE` 为 `0`（有可用数据）或 `1`，输入/运行错误抛出异常，不主动退出用户的 PowerShell 会话。
 
 ## 本地开发与验证
 
@@ -94,6 +114,9 @@ JSON 顶层包含 `mode`、`upload_enabled: false`、`detection_errors` 和 `rep
 python3 scripts/build_launcher.py
 python3 -m unittest discover -s tests -v
 bash -n NodeQuality.sh
+
+# PowerShell 原生测试，无须 Python 或 Pester
+pwsh -NoProfile -File tests/test_powershell.ps1
 ```
 
 修改 `ip_quality.py` 后重新生成 `NodeQuality.sh`，两者一起提交。构建不需要额外依赖。测试使用模拟响应，覆盖指定 IP、回车检测本机、双栈/单栈、错误处理、本地保存、拒绝上传以及单文件打包。
