@@ -2,3 +2,5 @@ tmp/
 __pycache__/
 *.pyc
 results/
+dist/
+nodequality_host_key
